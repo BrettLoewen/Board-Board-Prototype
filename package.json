@@ -14,7 +14,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.5.18"
+    "@nuxt/ui": "^3.3.4",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
