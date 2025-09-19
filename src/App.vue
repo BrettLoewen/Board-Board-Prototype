@@ -4,8 +4,8 @@ import interact from "interactjs";
 
 // State
 const cards = reactive([
-  { id: 1, text: "Card A", x: 100, y: 100, width: 150, height: 100 },
-  { id: 2, text: "Card B", x: 400, y: 200, width: 150, height: 100 },
+  { id: 1, text: "Card A", x: 100, y: -100, width: 150, height: 100 },
+  { id: 2, text: "Card B", x: 400, y: -200, width: 150, height: 100 },
 ]);
 
 // Canvas pan & zoom
@@ -55,41 +55,151 @@ const cards = reactive([
 
 // Setup interact.js
 onMounted(() => {
-  interact(".draggable").draggable({
-    listeners: {
-      move(event) {
-        const el = event.target;
-        const card = cards.find((c) => {
-          // console.log(`El: ${el.id}, C: ${c.id}, match: ${el.id == c.id}`);
-          return el.id == c.id;
-        });
-        // const card = cards.find((c) => el.textContent.includes(c.text));
-        if (!card) {
-          console.log("No card found");
-          return;
-        }
+  // const targetElement = document.getElementById("target");
+  // const infoElement = document.getElementById("info");
+  // const offset = { x: 0, y: 0 };
+  // const targetInteratable = interact(targetElement);
 
-        card.x += event.dx; /// scale.value; // adjust for zoom
-        card.y += event.dy; // / scale.value;
+  // targetInteratable.resizable({
+  //   edges: { top: true, left: true, bottom: true, right: true },
+  //   invert: "reposition",
+  //   listeners: {
+  //     move: function (event) {
+  //       const { width, height } = event.rect;
+
+  //       offset.x += event.deltaRect.left;
+  //       offset.y += event.deltaRect.top;
+
+  //       Object.assign(targetElement.style, {
+  //         width: `${width}px`,
+  //         height: `${height}px`,
+  //         transform: `translate(${offset.x}px, ${offset.y}px)`,
+  //       });
+  //       infoElement.textContent = `${width} × ${height}`;
+  //     },
+  //   },
+  // });
+
+  // interact(".draggable").draggable({
+  //   listeners: {
+  //     move(event) {
+  //       const el = event.target;
+  //       console.log("EL: " + el.id);
+  //       const card = cards.find((c) => el.id == c.id);
+  //       // const card = cards.find((c) => el.textContent.includes(c.text));
+  //       if (!card) {
+  //         console.log("No card found");
+  //         return;
+  //       }
+
+  //       card.x += event.dx; /// scale.value; // adjust for zoom
+  //       card.y += event.dy; // / scale.value;
+  //     },
+  //   },
+  //   inertia: false,
+  // })
+
+  interact(".card")
+    .draggable({
+      listeners: {
+        move(event) {
+          const el = event.target;
+          console.log("EL: " + el.id);
+          const card = cards.find((c) => el.id == c.id);
+          // const card = cards.find((c) => el.textContent.includes(c.text));
+          if (!card) {
+            console.log("No card found");
+            return;
+          }
+
+          card.x += event.dx; /// scale.value; // adjust for zoom
+          card.y += event.dy; // / scale.value;
+        },
       },
-    },
-    inertia: false,
-  });
-
-  interact(".resizable")
-    .resizable({
-      edges: { left: true, right: true, bottom: true, top: true },
+      inertia: false,
     })
-    .on("resizemove", (event) => {
-      const el = event.target;
-      const card = cards.find((c) => el.textContent.includes(c.text));
-      if (!card) return;
+    .resizable({
+      edges: { top: true, left: true, bottom: true, right: true },
+      invert: "reposition",
+      listeners: {
+        move: function (event) {
+          const el = event.target;
+          console.log("EL: " + el.id);
+          const card = cards.find((c) => el.id == c.id);
+          if (!card) {
+            console.log("No card found");
+            return;
+          }
 
-      card.width = event.rect.width; // / scale.value;
-      card.height = event.rect.height; // / scale.value;
-      card.x += event.deltaRect.left; // / scale.value;
-      card.y += event.deltaRect.top; // / scale.value;
+          // let { x, y } = event.target.dataset
+
+          // x = (parseFloat(x) || 0) + event.deltaRect.left
+          // y = (parseFloat(y) || 0) + event.deltaRect.top
+
+          // Object.assign(event.target.style, {
+          //   width: `${event.rect.width}px`,
+          //   height: `${event.rect.height}px`,
+          //   transform: `translate(${x}px, ${y}px)`
+          // })
+
+          // Object.assign(event.target.dataset, { x, y })
+
+          card.width = event.rect.width; // / scale.value;
+          card.height = event.rect.height; // / scale.value;
+          card.x += event.deltaRect.left; // / scale.value;
+          card.y += event.deltaRect.top; // / scale.value;
+        },
+      },
     });
+
+  // interact(".resizable")
+  //   .resizable({
+  //     edges: { left: true, right: true, bottom: true, top: true },
+  //   })
+  //   .on("resizemove", (event) => {
+  //     const el = event.target;
+  //     const card = cards.find((c) => el.id == c.id);
+  //     if (!card) return;
+
+  //     card.width = event.rect.width; // / scale.value;
+  //     card.height = event.rect.height; // / scale.value;
+  //     card.x += event.deltaRect.left; // / scale.value;
+  //     card.y += event.deltaRect.top; // / scale.value;
+  //   });
+
+  // interact(".resizable").resizable({
+  //   edges: { top: true, left: true, bottom: true, right: true },
+  //   invert: "reposition",
+  //   listeners: {
+  //     move: function (event) {
+  //       const el = event.target;
+  //       console.log("EL: " + el.id);
+  //       const card = cards.find((c) => el.id == c.id);
+  //       if (!card) {
+  //         console.log("No card found");
+  //         return;
+  //       }
+
+  //       // let { x, y } = event.target.dataset
+
+  //       // x = (parseFloat(x) || 0) + event.deltaRect.left
+  //       // y = (parseFloat(y) || 0) + event.deltaRect.top
+
+  //       // Object.assign(event.target.style, {
+  //       //   width: `${event.rect.width}px`,
+  //       //   height: `${event.rect.height}px`,
+  //       //   transform: `translate(${x}px, ${y}px)`
+  //       // })
+
+  //       // Object.assign(event.target.dataset, { x, y })
+
+  //       card.width = event.rect.width; // / scale.value;
+  //       card.height = event.rect.height; // / scale.value;
+  //       card.x += event.deltaRect.left; // / scale.value;
+  //       card.y += event.deltaRect.top; // / scale.value;
+  //     },
+  //   },
+  // });
 });
 
 var uiTest = {
@@ -138,19 +248,38 @@ var uiTest2 = {
     v-for="card in cards"
     :key="card.id"
     :id="card.id"
-    class="draggable resizable"
+    class="card"
     :style="{
       transform: `translate(${card.x}px, ${card.y}px)`,
       width: card.width + 'px',
       height: card.height + 'px',
     }"
   >
-    <!-- {{ card.text }} -->
-    <!-- <UCard class="h-32" :ui="uiTest">
+    <!-- {{ card.text }}
+    <UCard class="h-32" :ui="uiTest">
       <UTextarea size="sm" placeholder="Type something..." :ui="uiTest2" autoresize="true" />
     </UCard> -->
     <UTextarea placeholder="Type something..." :ui="uiTest2" :autoresize="true" />
   </div>
+
+  <!-- <UTextarea
+    v-for="card in cards"
+    :key="card.id"
+    :id="card.id"
+    class="card"
+    placeholder="Type something..."
+    :ui="uiTest2"
+    :autoresize="true"
+    :style="{
+      transform: `translate(${card.x}px, ${card.y}px)`,
+      width: card.width + 'px',
+      height: card.height + 'px',
+    }"
+  /> -->
+
+  <!-- <div id="target">
+    <span id="info"> Invertable? </span>
+  </div> -->
 </template>
 
 <style>
@@ -176,6 +305,21 @@ var uiTest2 = {
   padding: 0.5rem;
   user-select: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  /* box-sizing: border-box; */
+
+  /* display: inline-block;
+  width: 150px;
+  height: 150px;
+  margin: 1rem;
+  background-color: #29e;
+  border-radius: 0.75rem;
+  box-sizing: border-box;
+  font-size: 1.5rem;
+  white-space: pre;
+  touch-action: none;
+  user-select: none;
+  box-sizing: border-box; */
 }
 .card:active {
   cursor: grabbing;
@@ -190,5 +334,36 @@ var uiTest2 = {
 }
 .baseTest:active {
   cursor: grabbing;
+}
+
+/* .resizable {
+  
+  box-sizing: border-box;
+  background-color: red;
+} */
+
+#target {
+  display: inline-block;
+  width: 150px;
+  height: 150px;
+  margin: 1rem;
+  background-color: #29e;
+  border-radius: 0.75rem;
+  box-sizing: border-box;
+  font-size: 1.5rem;
+  white-space: pre;
+  touch-action: none;
+  user-select: none;
+}
+
+#info {
+  padding: 0 0.125em;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+label {
+  position: fixed;
+  bottom: 1rem;
 }
 </style>
