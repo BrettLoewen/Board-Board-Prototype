@@ -116,7 +116,7 @@ onMounted(() => {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .card:active {
-  cursor: grabbing;
+  cursor: move;
 }
 .card:focus-within {
   border-color: var(--ui-color-primary-400);
@@ -129,7 +129,7 @@ onMounted(() => {
   resize: none;
 }
 .cardTextarea:active {
-  cursor: grabbing;
+  cursor: move;
 }
 .cardTextarea:focus {
   outline: none;
