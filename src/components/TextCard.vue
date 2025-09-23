@@ -33,6 +33,7 @@ function autoResize(event) {
   }
 }
 
+// Setup interact.js to drag and resize the card
 onMounted(() => {
   interact(cardElement.value)
     .draggable({
