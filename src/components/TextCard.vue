@@ -2,17 +2,20 @@
 import { reactive, onMounted, useTemplateRef } from "vue";
 import interact from "interactjs";
 
-// State
-const cards = reactive([
-  { id: 1, text: "Card A", x: 100, y: -100, width: 150, height: 100 },
-  { id: 2, text: "Card B", x: 400, y: -200, width: 150, height: 100 },
-]);
+// Get the card data from the cards parent
+const props = defineProps({ card: Object });
+
+// Create a local copy of the data that can be modified
+const card = reactive(props.card);
+
+// Get a reference to the card element for the interaction mapping.
+// Cannot use ".card" because it was mapping to the wrong card.
+const cardElement = useTemplateRef("card-element");
 
 // Resize the card to fit text (prevent text from overflowing by making the card taller)
 function autoResize(event) {
   // Get the card element that is the parent of this textarea element
   const el = event.target;
-  const card = cards.find((c) => el.parentElement.id == c.id);
   if (!card) {
     console.log("No card found");
     return;
@@ -30,14 +33,11 @@ function autoResize(event) {
   }
 }
 
-// Setup interact.js
 onMounted(() => {
-  interact(".card")
+  interact(cardElement.value)
     .draggable({
       listeners: {
         move(event) {
-          const el = event.target;
-          const card = cards.find((c) => el.id == c.id);
           if (!card) {
             console.log("No card found");
             return;
@@ -54,8 +54,6 @@ onMounted(() => {
       invert: "reposition",
       listeners: {
         move(event) {
-          const el = event.target;
-          const card = cards.find((c) => el.id == c.id);
           if (!card) {
             console.log("No card found");
             return;
@@ -73,9 +71,6 @@ onMounted(() => {
 
 <template>
   <div
-    v-for="card in cards"
-    :key="card.id"
-    :id="card.id"
     class="card"
     :style="{
       transform: `translate(${card.x}px, ${card.y}px)`,
@@ -83,6 +78,7 @@ onMounted(() => {
       height: card.height + 'px',
     }"
     @input="autoResize"
+    ref="card-element"
   >
     <textarea class="cardTextarea" placeholder="Type something..."></textarea>
   </div>
