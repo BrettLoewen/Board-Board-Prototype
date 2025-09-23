@@ -1,6 +1,8 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef } from "vue";
+import { reactive, onMounted, useTemplateRef, defineEmits } from "vue";
 import interact from "interactjs";
+
+const emit = defineEmits(["deleteCard"]);
 
 // Get the card data from the cards parent
 const props = defineProps({ card: Object });
@@ -11,6 +13,19 @@ const card = reactive(props.card);
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.
 const cardElement = useTemplateRef("card-element");
+
+// Create the body of the card's context menu (right-click menu).
+// Clicking the Delete option emits the deleteCard event so the parent can delete this card.
+const cardContextMenuItems = [
+  {
+    label: "Delete",
+    color: "error",
+    icon: "i-lucide-trash",
+    onSelect() {
+      emit("deleteCard", { id: card.id });
+    },
+  },
+];
 
 // Resize the card to fit text (prevent text from overflowing by making the card taller)
 function autoResize(event) {
@@ -71,18 +86,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="card"
-    :style="{
-      transform: `translate(${card.x}px, ${card.y}px)`,
-      width: card.width + 'px',
-      height: card.height + 'px',
-    }"
-    @input="autoResize"
-    ref="card-element"
-  >
-    <textarea class="cardTextarea" placeholder="Type something..."></textarea>
-  </div>
+  <UContextMenu :items="cardContextMenuItems">
+    <div
+      class="card"
+      :style="{
+        transform: `translate(${card.x}px, ${card.y}px)`,
+        width: card.width + 'px',
+        height: card.height + 'px',
+      }"
+      @input="autoResize"
+      ref="card-element"
+    >
+      <textarea class="cardTextarea" placeholder="Type something..."></textarea>
+    </div>
+  </UContextMenu>
 </template>
 
 <style>
