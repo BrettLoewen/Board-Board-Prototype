@@ -36,13 +36,16 @@ function autoResize(event) {
     return;
   }
 
-  // Get the padding between the textarea and card to make the measurements accurate
-  var padding = parseFloat(window.getComputedStyle(el.parentElement).paddingTop);
+  // Get the padding between the textarea and card and the card's border size to make the measurements accurate
+  const style = window.getComputedStyle(el.parentElement);
+  const padding = parseFloat(style.paddingTop) * 2;
+  const borderWidth = parseFloat(style.borderTopWidth) * 2;
 
   // If the text has made the textarea too tall for the card
-  if (el.scrollHeight > card.height - padding * 2) {
-    // Calculate the new height for the card using the scroll height, padding, and an extra bit to prevent the scroll bar from appearing
-    var newHeight = el.scrollHeight + padding * 2 + 2;
+  if (el.scrollHeight > card.height - padding) {
+    // Calculate the new height for the card using the scroll height, padding, and the border width.
+    // The new height will be just enough to prevent the scroll bar from appearing.
+    const newHeight = el.scrollHeight + padding + borderWidth;
 
     card.height = newHeight;
   }
@@ -107,14 +110,16 @@ onMounted(() => {
   display: flex;
   position: absolute;
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 3px solid white;
   padding: 8px;
   user-select: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .card:active {
   cursor: grabbing;
+}
+.card:focus-within {
+  border-color: var(--ui-color-primary-400);
 }
 
 .cardTextarea {
@@ -125,5 +130,8 @@ onMounted(() => {
 }
 .cardTextarea:active {
   cursor: grabbing;
+}
+.cardTextarea:focus {
+  outline: none;
 }
 </style>
