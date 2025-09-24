@@ -39,6 +39,23 @@ function addShapeCard() {
 function deleteCard(data) {
   cards.value = cards.value.filter((card) => card.id != data.id);
 }
+
+const drawState = ref("none"); // "none", "draw", or "erase"
+
+function startDraw() {
+  if (drawState.value === "draw") {
+    drawState.value = "none";
+  } else {
+    drawState.value = "draw";
+  }
+}
+function startErase() {
+  if (drawState.value === "erase") {
+    drawState.value = "none";
+  } else {
+    drawState.value = "erase";
+  }
+}
 </script>
 
 <template>
@@ -46,14 +63,31 @@ function deleteCard(data) {
     <TextCard v-if="card.type === 'text'" :card="card" @delete-card="deleteCard" />
     <ShapeCard v-if="card.type === 'shape'" :card="card" @delete-card="deleteCard" />
   </div>
-  <div class="add-card-layout">
-    <UButton class="add-card-button" type="button" @click="addTextCard">Add Note</UButton>
-    <UButton class="add-card-button" type="button" @click="addShapeCard">Add Shape</UButton>
+  <div class="cards-layout">
+    <UButton class="cards-button" type="button" @click="addTextCard">Add Note</UButton>
+    <UButton class="cards-button" type="button" @click="addShapeCard">Add Shape</UButton>
+    <div class="draw-state-layout">
+      <UButton
+        class="cards-button draw-state-button left"
+        type="button"
+        @click="startDraw"
+        icon="i-lucide-pencil"
+        :variant="drawState === 'draw' ? 'soft' : 'solid'"
+      />
+      <UButton
+        class="cards-button draw-state-button right"
+        type="button"
+        @click="startErase"
+        icon="i-lucide-eraser"
+        :variant="drawState === 'erase' ? 'soft' : 'solid'"
+      />
+    </div>
   </div>
+  <DrawCard :draw-state="drawState" />
 </template>
 
 <style>
-.add-card-layout {
+.cards-layout {
   position: absolute;
   left: 50px;
   top: 50px;
@@ -61,10 +95,28 @@ function deleteCard(data) {
   flex-direction: column;
   gap: 10px;
 }
-.add-card-button:hover {
+.cards-button:hover {
   cursor: pointer;
 }
-.add-card-button:active {
+.cards-button:active {
   background: var(--ui-color-primary-900);
+}
+
+.draw-state-layout {
+  display: flex;
+  flex-direction: row;
+}
+.draw-state-button {
+  width: 50%;
+  justify-content: center;
+}
+.left {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right: 1px solid black;
+}
+.right {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 </style>
