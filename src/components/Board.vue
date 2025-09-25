@@ -59,10 +59,21 @@ const state = reactive({
 const contentStyle = computed(() => ({
   width: `${state.boardW}px`,
   height: `${state.boardH}px`,
-  transform: `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale})`,
+  // transform: `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale})`,
+  transform: `scale(${state.scale}) translate(${state.pan.x}px, ${state.pan.y}px)`,
   transformOrigin: "0 0",
   "--grid-size": `${props.gridSize}px`,
 }));
+
+let expandScheduled = false;
+function scheduleExpand() {
+  if (expandScheduled) return;
+  expandScheduled = true;
+  requestAnimationFrame(() => {
+    expandScheduled = false;
+    expandBoardToIncludeItems();
+  });
+}
 
 /* ---------- Robust bounds: use bounding rects (accounts for transforms) ---------- */
 function computeItemsBounds() {
@@ -70,19 +81,31 @@ function computeItemsBounds() {
   const items = content.value.querySelectorAll(".board-item");
   if (!items.length) return null;
 
-  const contentRect = content.value.getBoundingClientRect();
   let minX = Infinity,
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
 
   items.forEach((el) => {
-    const elRect = el.getBoundingClientRect();
-    // position relative to content top-left in **board** coordinates:
-    const x = (elRect.left - contentRect.left) / state.scale;
-    const y = (elRect.top - contentRect.top) / state.scale;
-    const w = elRect.width / state.scale;
-    const h = elRect.height / state.scale;
+    // Prefer explicit left/top if available (absolute positioned children)
+    const cs = window.getComputedStyle(el);
+    const posLeft = parseFloat(cs.left);
+    const posTop = parseFloat(cs.top);
+
+    let x, y;
+    if (!Number.isNaN(posLeft) && !Number.isNaN(posTop)) {
+      // left/top are usually in board coordinates (style on the element)
+      x = posLeft;
+      y = posTop;
+    } else {
+      // fallback: use offsetLeft/offsetTop plus any transform translate
+      const { tx, ty } = getTransformTranslate(el);
+      x = el.offsetLeft + tx;
+      y = el.offsetTop + ty;
+    }
+
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
 
     minX = Math.min(minX, x);
     minY = Math.min(minY, y);
@@ -99,6 +122,9 @@ function expandBoardToIncludeItems() {
   if (!bounds) return;
   const pad = props.edgePadding;
 
+  console.log(state.pan);
+  // console.log("howdy");
+
   const leftNeeded = Math.floor(bounds.minX - pad);
   const topNeeded = Math.floor(bounds.minY - pad);
   const rightNeeded = Math.ceil(bounds.maxX + pad);
@@ -106,34 +132,77 @@ function expandBoardToIncludeItems() {
 
   let newW = state.boardW;
   let newH = state.boardH;
+  let newPanX = state.pan.x;
+  let newPanY = state.pan.y;
 
   // Grow left (if items near/above left edge) by increasing width and shifting pan
   if (leftNeeded < 0) {
     const growLeft = Math.min(Math.abs(leftNeeded), props.maxBoardSize - newW);
-    newW = Math.min(props.maxBoardSize, newW + growLeft);
-    // shift pan so current viewport remains stable
-    state.pan.x -= growLeft * state.scale;
+    if (growLeft > 0) {
+      newW = Math.min(props.maxBoardSize, newW + growLeft);
+      // pan units are screen pixels (because transform: translate(px) scale(s))
+      // convert board units -> screen px by multiplying by current scale
+      newPanX -= growLeft * state.scale;
+    }
   }
 
   // Grow top similarly
   if (topNeeded < 0) {
     const growTop = Math.min(Math.abs(topNeeded), props.maxBoardSize - newH);
-    newH = Math.min(props.maxBoardSize, newH + growTop);
-    state.pan.y -= growTop * state.scale;
+    if (growTop > 0) {
+      newH = Math.min(props.maxBoardSize, newH + growTop);
+      newPanY -= growTop * state.scale;
+    }
+  }
+
+  // Grow right if needed
+  if (rightNeeded > newW) {
+    const growRight = Math.min(rightNeeded - newW, props.maxBoardSize - newW);
+    if (growRight > 0) {
+      newW = Math.min(props.maxBoardSize, newW + growRight);
+    }
+  }
+
+  // Grow bottom if needed
+  if (bottomNeeded > newH) {
+    const growBottom = Math.min(bottomNeeded - newH, props.maxBoardSize - newH);
+    if (growBottom > 0) {
+      newH = Math.min(props.maxBoardSize, newH + growBottom);
+    }
   }
 
   // Ensure right/bottom are included
-  newW = Math.max(newW, Math.min(rightNeeded, props.maxBoardSize));
-  newH = Math.max(newH, Math.min(bottomNeeded, props.maxBoardSize));
+  // newW = Math.max(newW, Math.min(rightNeeded, props.maxBoardSize));
+  // newH = Math.max(newH, Math.min(bottomNeeded, props.maxBoardSize));
+
+  // If nothing meaningful changed, bail out
+  const EPS = 0.5; // half-pixel tolerance
+  if (
+    Math.abs(newW - state.boardW) < EPS &&
+    Math.abs(newH - state.boardH) < EPS &&
+    Math.abs(newPanX - state.pan.x) < EPS &&
+    Math.abs(newPanY - state.pan.y) < EPS
+  ) {
+    return;
+  }
 
   // Apply
-  state.boardW = Math.min(newW, props.maxBoardSize);
-  state.boardH = Math.min(newH, props.maxBoardSize);
+  // state.boardW = Math.min(newW, props.maxBoardSize);
+  // state.boardH = Math.min(newH, props.maxBoardSize);
+
+  // Apply state changes once (this will trigger a single DOM update)
+  state.boardW = newW;
+  state.boardH = newH;
+  state.pan.x = newPanX;
+  state.pan.y = newPanY;
+
+  console.log(state.pan);
 }
 
 /* ---------- Fit-to-contents that waits until children are measured ---------- */
 function recalcBounds({ fit = false } = {}) {
-  expandBoardToIncludeItems();
+  // expandBoardToIncludeItems();
+  scheduleExpand();
 
   if (fit) {
     const bounds = computeItemsBounds();
@@ -145,7 +214,6 @@ function recalcBounds({ fit = false } = {}) {
     const scaleY = vp.height / contentBoxH;
     let targetScale = Math.min(scaleX, scaleY, 1);
     targetScale = Math.max(props.minZoom, Math.min(props.maxZoom, targetScale));
-    console.log("Howdy");
     state.scale = targetScale;
 
     // center the bounding box in viewport
@@ -232,11 +300,18 @@ onMounted(async () => {
   recalcBounds({ fit: props.fitToContents });
 
   // observe structural changes & size changes
-  mo = new MutationObserver(() => requestAnimationFrame(expandBoardToIncludeItems));
-  if (content.value)
-    mo.observe(content.value, { childList: true, subtree: true, attributes: true });
+  // mo = new MutationObserver(() => requestAnimationFrame(expandBoardToIncludeItems));
+  // if (content.value)
+  //   mo.observe(content.value, { childList: true, subtree: true, attributes: true });
 
-  ro = new ResizeObserver(() => requestAnimationFrame(expandBoardToIncludeItems));
+  // ro = new ResizeObserver(() => requestAnimationFrame(expandBoardToIncludeItems));
+  // if (content.value) ro.observe(content.value);
+
+  mo = new MutationObserver(() => scheduleExpand());
+  // do NOT set attributes:true
+  if (content.value) mo.observe(content.value, { childList: true, subtree: true });
+
+  ro = new ResizeObserver(() => scheduleExpand());
   if (content.value) ro.observe(content.value);
 });
 
