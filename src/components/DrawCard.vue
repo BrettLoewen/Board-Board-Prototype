@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, watch, useTemplateRef } from "vue";
+import { ref, reactive, onMounted, useTemplateRef } from "vue";
 
 const props = defineProps(["drawState"]);
 
