@@ -98,7 +98,7 @@ onMounted(() => {
 <template>
   <UContextMenu :items="cardContextMenuItems">
     <div
-      class="shape"
+      class="shape board-item"
       :style="{
         transform: `translate(${card.x}px, ${card.y}px)`,
         width: card.width + 'px',
