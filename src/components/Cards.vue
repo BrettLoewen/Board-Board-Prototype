@@ -2,6 +2,10 @@
 import { ref } from "vue";
 import ShapeCard from "./ShapeCard.vue";
 
+const props = defineProps({
+  boardPos: { type: Object },
+});
+
 // Stateful array of card objects that define the starting state of the app
 const cards = ref([
   { id: 1, type: "text", x: 200, y: 100, width: 150, height: 150 },
@@ -60,10 +64,23 @@ function startErase() {
 
 <template>
   <div v-for="card in cards" :key="card.id" :id="card.id">
-    <TextCard v-if="card.type === 'text'" :card="card" @delete-card="deleteCard" />
-    <ShapeCard v-if="card.type === 'shape'" :card="card" @delete-card="deleteCard" />
+    <TextCard
+      v-if="card.type === 'text'"
+      :card="card"
+      @delete-card="deleteCard"
+      :board-pos="props.boardPos"
+    />
+    <ShapeCard
+      v-if="card.type === 'shape'"
+      :card="card"
+      @delete-card="deleteCard"
+      :board-pos="props.boardPos"
+    />
   </div>
-  <div class="cards-layout">
+  <div
+    class="cards-layout"
+    :style="{ transform: `translate(${50 - boardPos.x}px, ${50 - boardPos.y}px)` }"
+  >
     <UButton class="cards-button" type="button" @click="addTextCard">Add Note</UButton>
     <UButton class="cards-button" type="button" @click="addShapeCard">Add Shape</UButton>
     <div class="draw-state-layout">
@@ -89,8 +106,8 @@ function startErase() {
 <style>
 .cards-layout {
   position: absolute;
-  left: 50px;
-  top: 50px;
+  /* left: 50px;
+  top: 50px; */
   display: flex;
   flex-direction: column;
   gap: 10px;

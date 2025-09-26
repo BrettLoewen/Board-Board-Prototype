@@ -5,7 +5,7 @@ import interact from "interactjs";
 const emit = defineEmits(["deleteCard"]);
 
 // Get the card data from the cards parent
-const props = defineProps({ card: Object });
+const props = defineProps({ card: Object, boardPos: Object });
 
 // Create a local copy of the data that can be modified
 const card = reactive(props.card);
@@ -93,7 +93,7 @@ onMounted(() => {
     <div
       class="card board-item"
       :style="{
-        transform: `translate(${card.x}px, ${card.y}px)`,
+        transform: `translate(${card.x - boardPos.x}px, ${card.y - boardPos.y}px)`,
         width: card.width + 'px',
         height: card.height + 'px',
       }"

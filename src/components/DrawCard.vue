@@ -56,6 +56,7 @@ function stopDrawing() {
 
 function getMousePos(e) {
   const rect = canvas.value.getBoundingClientRect();
+  console.log(rect);
   return {
     x: e.clientX - rect.left,
     y: e.clientY - rect.top,

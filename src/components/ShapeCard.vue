@@ -1,14 +1,17 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef, defineEmits } from "vue";
+import { reactive, onMounted, useTemplateRef, defineEmits, computed } from "vue";
 import interact from "interactjs";
 
 const emit = defineEmits(["deleteCard"]);
 
 // Get the card data from the cards parent
-const props = defineProps({ card: Object });
+const props = defineProps({ card: Object, boardPos: Object });
 
 // Create a local copy of the data that can be modified
-const card = reactive(props.card);
+const card = computed(() => ({
+  x: props.card.x - props.boardPos.x,
+  y: props.card.y - props.boardPos.y,
+}));
 
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.
@@ -100,7 +103,7 @@ onMounted(() => {
     <div
       class="shape board-item"
       :style="{
-        transform: `translate(${card.x}px, ${card.y}px)`,
+        transform: `translate(${card.x - boardPos.x}px, ${card.y - boardPos.y}px)`,
         width: card.width + 'px',
         height: card.height + 'px',
       }"

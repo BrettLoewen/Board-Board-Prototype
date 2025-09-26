@@ -1,7 +1,8 @@
 <script setup></script>
 
 <template>
-  <Board debug :fitToContents="false">
+  <Board />
+  <!-- <AIBoard debug :fitToContents="false">
     <div
       class="board-item"
       style="
@@ -30,8 +31,15 @@
     >
       Sticky 2
     </div>
-  </Board>
+  </AIBoard> -->
+
   <!-- <Board debug :fitToContents="true">
+    <Cards />
+  </Board> -->
+
+  <!-- <Cards /> -->
+
+  <!-- <Board debug>
     <Cards />
   </Board> -->
 </template>
