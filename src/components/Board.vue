@@ -143,18 +143,18 @@ function expandBoardToIncludeItems() {
 }
 
 function onWheel(e) {
-  // if (!viewport.value) return;
-  // const isCtrl = e.ctrlKey || e.metaKey;
-  // if (isCtrl) {
-  //   const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
-  //   zoomAroundPoint(zoomFactor, e.clientX, e.clientY);
-  //   return;
-  // }
-  // const factor = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 800 : 1;
-  // const dx = (e.shiftKey ? e.deltaY : 0) * -1 * factor;
-  // const dy = (e.shiftKey ? 0 : e.deltaY) * -1 * factor;
-  // state.pan.x += dx;
-  // state.pan.y += dy;
+  if (!viewport.value) return;
+  const isCtrl = e.ctrlKey || e.metaKey;
+  if (isCtrl) {
+    // const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
+    // zoomAroundPoint(zoomFactor, e.clientX, e.clientY);
+    return;
+  }
+  const factor = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 800 : 1;
+  const dx = (e.shiftKey ? e.deltaY : 0) * -1 * factor;
+  const dy = (e.shiftKey ? 0 : e.deltaY) * -1 * factor;
+  state.pan.x += dx;
+  state.pan.y += dy;
 }
 
 function onMouseDown(e) {
@@ -162,8 +162,6 @@ function onMouseDown(e) {
   state.isPanning = true;
   state.lastPointer.x = e.clientX;
   state.lastPointer.y = e.clientY;
-  // window.addEventListener("mousemove", onMouseMove);
-  // window.addEventListener("mouseup", onMouseUp);
   e.preventDefault();
 }
 function onMouseMove(e) {
@@ -178,8 +176,6 @@ function onMouseMove(e) {
 function onMouseUp() {
   if (!state.isPanning) return;
   state.isPanning = false;
-  // window.removeEventListener("mousemove", onMouseMove);
-  // window.removeEventListener("mouseup", onMouseUp);
   // expandBoardToIncludeItems();
 }
 
@@ -213,7 +209,6 @@ onMounted(async () => {
         '--grid-size': `${props.gridSize}px`,
       }"
     >
-      <!-- <slot /> -->
       <Cards :board-pos="state.pan" />
     </div>
   </div>
