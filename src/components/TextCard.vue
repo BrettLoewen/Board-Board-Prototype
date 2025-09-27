@@ -1,14 +1,15 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef, defineEmits } from "vue";
+import { reactive, onMounted, useTemplateRef } from "vue";
 import interact from "interactjs";
 
 const emit = defineEmits(["deleteCard"]);
 
 // Get the card data from the cards parent
-const props = defineProps({ card: Object, boardPos: Object });
+const props = defineProps({ card: { type: Object }, boardPos: { type: Object } });
 
 // Create a local copy of the data that can be modified
 const card = reactive(props.card);
+const offsetPos = reactive({ ...props.boardPos });
 
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.
@@ -93,7 +94,7 @@ onMounted(() => {
     <div
       class="card board-item"
       :style="{
-        transform: `translate(${card.x - boardPos.x}px, ${card.y - boardPos.y}px)`,
+        transform: `translate(${card.x - offsetPos.x}px, ${card.y - offsetPos.y}px)`,
         width: card.width + 'px',
         height: card.height + 'px',
       }"

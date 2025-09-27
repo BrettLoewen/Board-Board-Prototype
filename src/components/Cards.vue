@@ -8,8 +8,8 @@ const props = defineProps({
 
 // Stateful array of card objects that define the starting state of the app
 const cards = ref([
-  { id: 1, type: "text", x: 200, y: 100, width: 150, height: 150 },
-  { id: 2, type: "text", x: 400, y: 200, width: 150, height: 150 },
+  { id: 1, type: "text", x: 400, y: 300, width: 150, height: 150 },
+  { id: 2, type: "text", x: 600, y: 400, width: 150, height: 150 },
 ]);
 let cardIdCounter = cards.value.length;
 
@@ -106,8 +106,6 @@ function startErase() {
 <style>
 .cards-layout {
   position: absolute;
-  /* left: 50px;
-  top: 50px; */
   display: flex;
   flex-direction: column;
   gap: 10px;

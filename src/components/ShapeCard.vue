@@ -8,10 +8,13 @@ const emit = defineEmits(["deleteCard"]);
 const props = defineProps({ card: Object, boardPos: Object });
 
 // Create a local copy of the data that can be modified
-const card = computed(() => ({
-  x: props.card.x - props.boardPos.x,
-  y: props.card.y - props.boardPos.y,
-}));
+const card = reactive(props.card);
+const offsetPos = reactive({ ...props.boardPos });
+// const card = computed(() => ({
+//   x: props.card.x - offsetPos.x,
+//   y: props.card.y - offsetPos.y,
+//   ...props.card,
+// }));
 
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.
@@ -61,6 +64,10 @@ const cardContextMenuItems = [
   ],
 ];
 
+function getCardPos() {
+  return { x: card.x - offsetPos.x, y: card.y - offsetPos.y };
+}
+
 // Setup interact.js to drag and resize the card
 onMounted(() => {
   interact(cardElement.value)
@@ -103,7 +110,7 @@ onMounted(() => {
     <div
       class="shape board-item"
       :style="{
-        transform: `translate(${card.x - boardPos.x}px, ${card.y - boardPos.y}px)`,
+        transform: `translate(${getCardPos().x}px, ${getCardPos().y}px)`,
         width: card.width + 'px',
         height: card.height + 'px',
       }"
@@ -114,13 +121,13 @@ onMounted(() => {
       <svg
         :width="card.width + 'px'"
         :height="card.height + 'px'"
-        :viewBox="card.x + ' ' + card.y + ' ' + card.width + ' ' + card.height"
+        :viewBox="getCardPos().x + ' ' + getCardPos().y + ' ' + card.width + ' ' + card.height"
       >
         <!-- Circle -->
         <ellipse
           v-if="card.shape === 'circle'"
-          :cx="card.x + card.width / 2"
-          :cy="card.y + card.height / 2 - 3"
+          :cx="getCardPos().x + card.width / 2"
+          :cy="getCardPos().y + card.height / 2 - 3"
           :rx="card.width / 2"
           :ry="card.height / 2"
           fill="var(--ui-color-primary-400)"
@@ -131,20 +138,20 @@ onMounted(() => {
           v-if="card.shape === 'triangle'"
           :points="
             /* Top-middle vertex */
-            card.x +
+            getCardPos().x +
             card.width / 2 +
             ',' +
-            (card.y - 3) +
+            (getCardPos().y - 3) +
             ' ' +
             /* Bottom-right vertex */
-            (card.x + card.width) +
+            (getCardPos().x + card.width) +
             ',' +
-            (card.y + card.height - 3) +
+            (getCardPos().y + card.height - 3) +
             ' ' +
             /* Bottom-left vertex */
-            card.x +
+            getCardPos().x +
             ',' +
-            (card.y + card.height - 3)
+            (getCardPos().y + card.height - 3)
           "
           fill="var(--ui-color-primary-400)"
         />
@@ -152,8 +159,8 @@ onMounted(() => {
         <!-- Square -->
         <rect
           v-if="card.shape === 'square'"
-          :x="card.x"
-          :y="card.y - 3"
+          :x="getCardPos().x"
+          :y="getCardPos().y - 3"
           :width="card.width"
           :height="card.height"
           fill="var(--ui-color-primary-400)"

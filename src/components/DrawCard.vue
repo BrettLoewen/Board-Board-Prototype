@@ -56,7 +56,7 @@ function stopDrawing() {
 
 function getMousePos(e) {
   const rect = canvas.value.getBoundingClientRect();
-  console.log(rect);
+  // console.log("X: " + (e.clientX - rect.left));
   return {
     x: e.clientX - rect.left,
     y: e.clientY - rect.top,
@@ -66,6 +66,7 @@ function getMousePos(e) {
 function redraw() {
   const c = canvas.value;
   const context = ctx.value;
+  console.log(ctx.value);
   context.clearRect(0, 0, c.width, c.height);
   strokes.forEach((stroke) => {
     context.lineJoin = "round";

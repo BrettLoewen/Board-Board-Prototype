@@ -139,7 +139,7 @@ function expandBoardToIncludeItems() {
   state.boardW = newW;
   state.boardH = newH;
 
-  console.log(state);
+  // console.log(state);
 }
 
 function onWheel(e) {
@@ -158,33 +158,33 @@ function onWheel(e) {
 }
 
 function onMouseDown(e) {
-  // if (e.button !== 1) return;
-  // state.isPanning = true;
-  // state.lastPointer.x = e.clientX;
-  // state.lastPointer.y = e.clientY;
+  if (e.button !== 1) return;
+  state.isPanning = true;
+  state.lastPointer.x = e.clientX;
+  state.lastPointer.y = e.clientY;
   // window.addEventListener("mousemove", onMouseMove);
   // window.addEventListener("mouseup", onMouseUp);
-  // e.preventDefault();
+  e.preventDefault();
 }
 function onMouseMove(e) {
-  // if (!state.isPanning) return;
-  // const dx = e.clientX - state.lastPointer.x;
-  // const dy = e.clientY - state.lastPointer.y;
-  // state.pan.x += dx;
-  // state.pan.y += dy;
-  // state.lastPointer.x = e.clientX;
-  // state.lastPointer.y = e.clientY;
+  if (!state.isPanning) return;
+  const dx = e.clientX - state.lastPointer.x;
+  const dy = e.clientY - state.lastPointer.y;
+  state.pan.x += dx;
+  state.pan.y += dy;
+  state.lastPointer.x = e.clientX;
+  state.lastPointer.y = e.clientY;
 }
 function onMouseUp() {
-  // if (!state.isPanning) return;
-  // state.isPanning = false;
+  if (!state.isPanning) return;
+  state.isPanning = false;
   // window.removeEventListener("mousemove", onMouseMove);
   // window.removeEventListener("mouseup", onMouseUp);
   // expandBoardToIncludeItems();
 }
 
 onMounted(async () => {
-  console.log(computeItemsBounds());
+  // console.log(computeItemsBounds());
 
   await nextTick();
   expandBoardToIncludeItems();
