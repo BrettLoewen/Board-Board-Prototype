@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, useTemplateRef } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount, useTemplateRef } from "vue";
 
 const props = defineProps(["drawState"]);
 
@@ -15,17 +15,36 @@ const strokeColor = ref("");
 const strokeWidth = 8;
 const eraseScale = 10;
 
-onMounted(() => {
-  const c = canvas.value;
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
-  ctx.value = c.getContext("2d");
+onMounted(async () => {
+  ctx.value = canvas.value.getContext("2d");
 
   strokeColor.value = getComputedStyle(document.documentElement)
     .getPropertyValue("--ui-color-primary-400")
     .trim();
-  redraw();
+
+  resizeCanvas();
+
+  window.addEventListener("resize", resizeCanvas);
 });
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", resizeCanvas);
+});
+
+function resizeCanvas() {
+  const c = canvas.value;
+  if (!c) return;
+
+  // Get the displayed size of the canvas
+  const rect = c.getBoundingClientRect();
+
+  // Only resize if it actually changed to avoid unnecessary clears
+  if (c.width !== rect.width || c.height !== rect.height) {
+    c.width = rect.width;
+    c.height = rect.height;
+    redraw(); // re-paint all strokes at the new resolution
+  }
+}
 
 function startDrawing(e) {
   if (props.drawState === "none") {
@@ -56,7 +75,6 @@ function stopDrawing() {
 
 function getMousePos(e) {
   const rect = canvas.value.getBoundingClientRect();
-  // console.log("X: " + (e.clientX - rect.left));
   return {
     x: e.clientX - rect.left,
     y: e.clientY - rect.top,
@@ -66,7 +84,6 @@ function getMousePos(e) {
 function redraw() {
   const c = canvas.value;
   const context = ctx.value;
-  console.log(ctx.value);
   context.clearRect(0, 0, c.width, c.height);
   strokes.forEach((stroke) => {
     context.lineJoin = "round";
