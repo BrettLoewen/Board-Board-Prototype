@@ -2,14 +2,15 @@
 import { reactive, onMounted, useTemplateRef } from "vue";
 import interact from "interactjs";
 
-const emit = defineEmits(["deleteCard"]);
+const emit = defineEmits(["deleteCard", "cardChanged"]);
 
 // Get the card data from the cards parent
 const props = defineProps({ card: { type: Object }, boardPos: { type: Object } });
 
 // Create a local copy of the data that can be modified
 const card = reactive(props.card);
-const offsetPos = reactive({ ...props.boardPos });
+// const offsetPos = reactive({ ...props.boardPos });
+const offsetPos = reactive(props.boardPos);
 
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.
@@ -49,6 +50,8 @@ function autoResize(event) {
     const newHeight = el.scrollHeight + padding + borderWidth;
 
     card.height = newHeight;
+
+    emit("cardChanged");
   }
 }
 
@@ -65,6 +68,8 @@ onMounted(() => {
 
           card.x += event.dx;
           card.y += event.dy;
+
+          emit("cardChanged");
         },
       },
       inertia: false,
@@ -83,6 +88,8 @@ onMounted(() => {
           card.height = event.rect.height;
           card.x += event.deltaRect.left;
           card.y += event.deltaRect.top;
+
+          emit("cardChanged");
         },
       },
     });

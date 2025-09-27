@@ -27,6 +27,8 @@ const state = reactive({
   lastPointer: { x: 0, y: 0 },
 });
 
+const growthPan = reactive({ ...state.pan });
+
 // const contentStyle = computed(() => ({
 //   width: `${state.boardW}px`,
 //   height: `${state.boardH}px`,
@@ -124,11 +126,13 @@ function expandBoardToIncludeItems() {
     newW = Math.min(props.maxBoardSize, state.boardW + growLeft);
     // shift pan so content appears moved right by growLeft
     state.pan.x -= growLeft * state.scale;
+    growthPan.x -= growLeft * state.scale;
   }
   if (neededTop < 0) {
     const growTop = Math.min(Math.abs(neededTop), props.maxBoardSize - state.boardH);
     newH = Math.min(props.maxBoardSize, state.boardH + growTop);
     state.pan.y -= growTop * state.scale;
+    growthPan.y -= growTop * state.scale;
   }
 
   // clamp to maxBoardSize
@@ -139,7 +143,7 @@ function expandBoardToIncludeItems() {
   state.boardW = newW;
   state.boardH = newH;
 
-  // console.log(state);
+  console.log(state);
 }
 
 function onWheel(e) {
@@ -179,6 +183,10 @@ function onMouseUp() {
   // expandBoardToIncludeItems();
 }
 
+function onCardsChanged() {
+  expandBoardToIncludeItems();
+}
+
 onMounted(async () => {
   // console.log(computeItemsBounds());
 
@@ -209,7 +217,7 @@ onMounted(async () => {
         '--grid-size': `${props.gridSize}px`,
       }"
     >
-      <Cards :board-pos="state.pan" />
+      <Cards :growth-pan="growthPan" :board-pos="state.pan" @cards-changed="onCardsChanged" />
     </div>
   </div>
 </template>
@@ -232,7 +240,8 @@ onMounted(async () => {
   height: 100%;
   left: 0;
   top: 0;
-  background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  /* background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.12) 1px, transparent 1px); */
+  background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 1px, transparent 1px);
   background-repeat: repeat;
   background-size: var(--grid-size, 32px) var(--grid-size, 32px);
 }

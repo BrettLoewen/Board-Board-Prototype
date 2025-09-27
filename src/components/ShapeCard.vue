@@ -2,14 +2,15 @@
 import { reactive, onMounted, useTemplateRef, defineEmits, computed } from "vue";
 import interact from "interactjs";
 
-const emit = defineEmits(["deleteCard"]);
+const emit = defineEmits(["deleteCard", "cardChanged"]);
 
 // Get the card data from the cards parent
 const props = defineProps({ card: Object, boardPos: Object });
 
 // Create a local copy of the data that can be modified
 const card = reactive(props.card);
-const offsetPos = reactive({ ...props.boardPos });
+// const offsetPos = reactive({ ...props.boardPos });
+const offsetPos = reactive(props.boardPos);
 // const card = computed(() => ({
 //   x: props.card.x - offsetPos.x,
 //   y: props.card.y - offsetPos.y,
@@ -81,6 +82,8 @@ onMounted(() => {
 
           card.x += event.dx;
           card.y += event.dy;
+
+          emit("cardChanged");
         },
       },
       inertia: false,
@@ -99,6 +102,8 @@ onMounted(() => {
           card.height = event.rect.height;
           card.x += event.deltaRect.left;
           card.y += event.deltaRect.top;
+
+          emit("cardChanged");
         },
       },
     });

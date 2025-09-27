@@ -2,7 +2,10 @@
 import { ref } from "vue";
 import ShapeCard from "./ShapeCard.vue";
 
+const emit = defineEmits(["cardsChanged"]);
+
 const props = defineProps({
+  growthPan: { type: Object },
   boardPos: { type: Object },
 });
 
@@ -60,6 +63,10 @@ function startErase() {
     drawState.value = "erase";
   }
 }
+
+function onCardChanged() {
+  emit("cardsChanged");
+}
 </script>
 
 <template>
@@ -68,13 +75,15 @@ function startErase() {
       v-if="card.type === 'text'"
       :card="card"
       @delete-card="deleteCard"
-      :board-pos="props.boardPos"
+      @card-changed="onCardChanged"
+      :board-pos="props.growthPan"
     />
     <ShapeCard
       v-if="card.type === 'shape'"
       :card="card"
       @delete-card="deleteCard"
-      :board-pos="props.boardPos"
+      @card-changed="onCardChanged"
+      :board-pos="props.growthPan"
     />
   </div>
   <div
