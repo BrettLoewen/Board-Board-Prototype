@@ -10,6 +10,14 @@ const props = defineProps({
   boardScale: { type: Number },
 });
 
+// Expose the card control functions so the external toolbar can call them (in Board.vue)
+defineExpose({
+  addTextCard,
+  addShapeCard,
+  startDraw,
+  startErase,
+});
+
 // Stateful array of card objects that define the starting state of the app
 const cards = ref([
   { id: 1, type: "text", x: 400, y: 300, width: 150, height: 150 },
@@ -67,16 +75,7 @@ function startErase() {
 
 function onCardChanged() {
   emit("cardsChanged");
-
-  // console.log(`Board pos: ${props.boardPos.x}\nOffset: ${50}\nScale: ${props.boardScale}`);
 }
-
-defineExpose({
-  addTextCard,
-  addShapeCard,
-  startDraw,
-  startErase,
-});
 </script>
 
 <template>

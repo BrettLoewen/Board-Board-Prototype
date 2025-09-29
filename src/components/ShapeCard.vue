@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef, computed } from "vue";
+import { reactive, onMounted, useTemplateRef } from "vue";
 import interact from "interactjs";
 
 const emit = defineEmits(["deleteCard", "cardChanged"]);
@@ -15,11 +15,6 @@ const props = defineProps({
 const card = reactive(props.card);
 // const offsetPos = reactive({ ...props.boardPos });
 const offsetPos = reactive(props.boardPos);
-// const card = computed(() => ({
-//   x: props.card.x - offsetPos.x,
-//   y: props.card.y - offsetPos.y,
-//   ...props.card,
-// }));
 
 // Get a reference to the card element for the interaction mapping.
 // Cannot use ".card" because it was mapping to the wrong card.

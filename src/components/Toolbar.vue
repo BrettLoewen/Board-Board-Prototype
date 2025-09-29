@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from "vue";
 
+// Each function will emit an event and Board.vue will map those events to exposed functions in Cards.vue.
+// This lets the toolbar call functions to manage the cards across components.
+// In a production app, this should be handled with raising the state out of Cards or with global state, but this works for a prototype.
 const emit = defineEmits(["addTextCard", "addShapeCard", "startDraw", "startErase"]);
 
 const drawState = ref("none"); // "none", "draw", or "erase"

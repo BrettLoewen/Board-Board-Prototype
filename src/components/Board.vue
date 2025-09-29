@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, useTemplateRef, onMounted, nextTick } from "vue";
+import { reactive, useTemplateRef, onMounted, nextTick } from "vue";
 
 const props = defineProps({
   initialZoom: { type: Number, default: 1 },
@@ -31,14 +31,6 @@ const state = reactive({
 
 const growthPan = reactive({ ...state.pan });
 
-// const contentStyle = computed(() => ({
-//   width: `${state.boardW}px`,
-//   height: `${state.boardH}px`,
-//   transform: `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale})`,
-//   transformOrigin: "0 0",
-//   "--grid-size": `${props.gridSize}px`,
-// }));
-
 function getTransformTranslate(el) {
   const s = window.getComputedStyle(el);
   const t = s.transform;
@@ -64,33 +56,12 @@ function computeItemsBounds() {
   const items = content.value.querySelectorAll(".board-item");
   if (!items.length) return null;
 
-  // console.log(items);
-
   let minX = Infinity,
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
 
   items.forEach((el) => {
-    // Prefer explicit left/top if available (absolute positioned children)
-    // const cs = window.getComputedStyle(el);
-    // const posLeft = parseFloat(cs.left);
-    // const posTop = parseFloat(cs.top);
-    // console.log(cs);
-
-    // let x, y;
-    // if (!Number.isNaN(posLeft) && !Number.isNaN(posTop)) {
-    //   // left/top are usually in board coordinates (style on the element)
-    //   x = posLeft;
-    //   y = posTop;
-    // } else {
-    //   // fallback: use offsetLeft/offsetTop plus any transform translate
-    //   // const { tx, ty } = getTransformTranslate(el);
-    //   // x = el.offsetLeft + tx;
-    //   // y = el.offsetTop + ty;
-    //   console.log("NaN");
-    // }
-
     const { tx, ty } = getTransformTranslate(el);
     const x = el.offsetLeft + tx;
     const y = el.offsetTop + ty;
@@ -200,13 +171,13 @@ function onMouseMove(e) {
 function onMouseUp() {
   if (!state.isPanning) return;
   state.isPanning = false;
-  // expandBoardToIncludeItems();
 }
 
 function onCardsChanged() {
   expandBoardToIncludeItems();
 }
 
+// Mapping functions that allow the toolbar to manage card state
 function addTextCard() {
   cards.value?.addTextCard();
 }
@@ -224,8 +195,6 @@ function startErase() {
 }
 
 onMounted(async () => {
-  // console.log(computeItemsBounds());
-
   await nextTick();
   expandBoardToIncludeItems();
 });
