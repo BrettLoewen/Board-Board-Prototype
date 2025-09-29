@@ -3,8 +3,8 @@ import { reactive, computed, useTemplateRef, onMounted, nextTick } from "vue";
 
 const props = defineProps({
   initialZoom: { type: Number, default: 1 },
-  // minZoom: { type: Number, default: 0.1 },
-  // maxZoom: { type: Number, default: 5 },
+  minZoom: { type: Number, default: 0.1 },
+  maxZoom: { type: Number, default: 5 },
   startWidth: { type: Number, default: 1920 },
   startHeight: { type: Number, default: 919 },
   maxBoardSize: { type: Number, default: 20000 },
@@ -14,6 +14,8 @@ const props = defineProps({
   // debug helper (temporary only)
   debug: { type: Boolean, default: false },
 });
+
+const cards = useTemplateRef("cards");
 
 const viewport = useTemplateRef("viewport");
 const content = useTemplateRef("content");
@@ -143,15 +145,33 @@ function expandBoardToIncludeItems() {
   state.boardW = newW;
   state.boardH = newH;
 
-  console.log(state);
+  // console.log(state);
+}
+
+function zoomAroundPoint(deltaScale, mouseClientX, mouseClientY) {
+  const oldScale = state.scale;
+  let newScale = oldScale * deltaScale;
+  newScale = Math.max(props.minZoom, Math.min(props.maxZoom, newScale));
+  if (newScale === oldScale) return;
+
+  const vpRect = viewport.value.getBoundingClientRect();
+  const mx = mouseClientX - vpRect.left;
+  const my = mouseClientY - vpRect.top;
+
+  const worldX = (mx - state.pan.x) / oldScale;
+  const worldY = (my - state.pan.y) / oldScale;
+
+  state.scale = newScale;
+  state.pan.x = mx - worldX * newScale;
+  state.pan.y = my - worldY * newScale;
 }
 
 function onWheel(e) {
   if (!viewport.value) return;
   const isCtrl = e.ctrlKey || e.metaKey;
   if (isCtrl) {
-    // const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
-    // zoomAroundPoint(zoomFactor, e.clientX, e.clientY);
+    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
+    zoomAroundPoint(zoomFactor, e.clientX, e.clientY);
     return;
   }
   const factor = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 800 : 1;
@@ -193,12 +213,29 @@ onMounted(async () => {
   await nextTick();
   expandBoardToIncludeItems();
 });
+
+function addTextCard() {
+  cards.value?.addTextCard();
+}
+
+function addShapeCard() {
+  cards.value?.addShapeCard();
+}
+
+function startDraw() {
+  cards.value?.startDraw();
+}
+
+function startErase() {
+  cards.value?.startErase();
+}
 </script>
 
 <template>
   <div
     ref="viewport"
     class="board-viewport"
+    :class="{ 'is-panning': state.isPanning }"
     @wheel.prevent="onWheel"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
@@ -212,14 +249,26 @@ onMounted(async () => {
       :style="{
         width: `${state.boardW}px`,
         height: `${state.boardH}px`,
-        transform: `scale(${state.scale}) translate(${state.pan.x}px, ${state.pan.y}px)`,
+        transform: `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale}) `,
         transformOrigin: '0 0',
         '--grid-size': `${props.gridSize}px`,
       }"
     >
-      <Cards :growth-pan="growthPan" :board-pos="state.pan" @cards-changed="onCardsChanged" />
+      <Cards
+        ref="cards"
+        :growth-pan="growthPan"
+        :board-pos="state.pan"
+        :board-scale="state.scale"
+        @cards-changed="onCardsChanged"
+      />
     </div>
   </div>
+  <Toolbar
+    @add-text-card="addTextCard"
+    @add-shape-card="addShapeCard"
+    @start-draw="startDraw"
+    @start-erase="startErase"
+  />
 </template>
 
 <style scoped>
@@ -240,10 +289,12 @@ onMounted(async () => {
   height: 100%;
   left: 0;
   top: 0;
-  /* background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.12) 1px, transparent 1px); */
   background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 1px, transparent 1px);
   background-repeat: repeat;
   background-size: var(--grid-size, 32px) var(--grid-size, 32px);
+}
+.board-viewport.is-panning {
+  cursor: grabbing;
 }
 
 /* debug outlines to make visualization easier while debugging */

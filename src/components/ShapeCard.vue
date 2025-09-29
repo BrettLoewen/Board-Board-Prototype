@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef, defineEmits, computed } from "vue";
+import { reactive, onMounted, useTemplateRef, computed } from "vue";
 import interact from "interactjs";
 
 const emit = defineEmits(["deleteCard", "cardChanged"]);
