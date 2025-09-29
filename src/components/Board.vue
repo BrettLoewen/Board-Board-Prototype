@@ -207,13 +207,6 @@ function onCardsChanged() {
   expandBoardToIncludeItems();
 }
 
-onMounted(async () => {
-  // console.log(computeItemsBounds());
-
-  await nextTick();
-  expandBoardToIncludeItems();
-});
-
 function addTextCard() {
   cards.value?.addTextCard();
 }
@@ -229,6 +222,13 @@ function startDraw() {
 function startErase() {
   cards.value?.startErase();
 }
+
+onMounted(async () => {
+  // console.log(computeItemsBounds());
+
+  await nextTick();
+  expandBoardToIncludeItems();
+});
 </script>
 
 <template>

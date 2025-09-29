@@ -5,7 +5,11 @@ import interact from "interactjs";
 const emit = defineEmits(["deleteCard", "cardChanged"]);
 
 // Get the card data from the cards parent
-const props = defineProps({ card: { type: Object }, boardPos: { type: Object } });
+const props = defineProps({
+  card: { type: Object },
+  boardPos: { type: Object },
+  boardScale: { type: Number },
+});
 
 // Create a local copy of the data that can be modified
 const card = reactive(props.card);
@@ -66,8 +70,8 @@ onMounted(() => {
             return;
           }
 
-          card.x += event.dx;
-          card.y += event.dy;
+          card.x += event.dx / props.boardScale;
+          card.y += event.dy / props.boardScale;
 
           emit("cardChanged");
         },
@@ -84,10 +88,10 @@ onMounted(() => {
             return;
           }
 
-          card.width = event.rect.width;
-          card.height = event.rect.height;
-          card.x += event.deltaRect.left;
-          card.y += event.deltaRect.top;
+          card.width = event.rect.width / props.boardScale;
+          card.height = event.rect.height / props.boardScale;
+          card.x += event.deltaRect.left / props.boardScale;
+          card.y += event.deltaRect.top / props.boardScale;
 
           emit("cardChanged");
         },

@@ -84,16 +84,18 @@ defineExpose({
     <TextCard
       v-if="card.type === 'text'"
       :card="card"
+      :board-pos="props.growthPan"
+      :board-scale="props.boardScale"
       @delete-card="deleteCard"
       @card-changed="onCardChanged"
-      :board-pos="props.growthPan"
     />
     <ShapeCard
       v-if="card.type === 'shape'"
       :card="card"
+      :board-pos="props.growthPan"
+      :board-scale="props.boardScale"
       @delete-card="deleteCard"
       @card-changed="onCardChanged"
-      :board-pos="props.growthPan"
     />
   </div>
   <DrawCard :draw-state="drawState" />
