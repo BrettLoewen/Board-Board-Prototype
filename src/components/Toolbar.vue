@@ -1,47 +1,34 @@
 <script setup>
-import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/appStore";
 
-// Each function will emit an event and Board.vue will map those events to exposed functions in Cards.vue.
-// This lets the toolbar call functions to manage the cards across components.
-// In a production app, this should be handled with raising the state out of Cards or with global state, but this works for a prototype.
-const emit = defineEmits(["addTextCard", "addShapeCard", "startDraw", "startErase"]);
-
-const drawState = ref("none"); // "none", "draw", or "erase"
+const store = useAppStore();
+const { drawState } = storeToRefs(store);
 
 // Add a new card to the array of cards.
 // Add a text card.
 function addTextCard() {
-  emit("addTextCard");
+  store.addTextCard();
 }
 // Add a shape card.
 function addShapeCard() {
-  emit("addShapeCard");
+  store.addShapeCard();
 }
 
 function startDraw() {
-  if (drawState.value === "draw") {
-    drawState.value = "none";
-  } else {
-    drawState.value = "draw";
-  }
-
-  emit("startDraw");
+  store.toggleDraw();
 }
 function startErase() {
-  if (drawState.value === "erase") {
-    drawState.value = "none";
-  } else {
-    drawState.value = "erase";
-  }
-
-  emit("startErase");
+  store.toggleErase();
 }
 </script>
 
 <template>
   <div class="cards-layout">
     <UButton class="cards-button" type="button" @click="addTextCard">Add Note</UButton>
-    <UButton class="cards-button" type="button" @click="addShapeCard">Add Shape</UButton>
+    <UButton class="cards-button" type="button" :as="'button'" @click="addShapeCard"
+      >Add Shape</UButton
+    >
     <div class="draw-state-layout">
       <UButton
         class="cards-button draw-state-button left"

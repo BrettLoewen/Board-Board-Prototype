@@ -1,5 +1,7 @@
 <script setup>
 import { reactive, useTemplateRef, onMounted, nextTick } from "vue";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/appStore";
 
 const props = defineProps({
   initialZoom: { type: Number, default: 1 },
@@ -15,7 +17,10 @@ const props = defineProps({
   debug: { type: Boolean, default: false },
 });
 
-const cards = useTemplateRef("cards");
+const store = useAppStore();
+const { boardW, boardH } = storeToRefs(store);
+store.boardW = props.startWidth;
+store.boardH = props.startHeight;
 
 const viewport = useTemplateRef("viewport");
 const content = useTemplateRef("content");
@@ -23,8 +28,6 @@ const content = useTemplateRef("content");
 const state = reactive({
   pan: { x: 0, y: 0 },
   scale: props.initialZoom,
-  boardW: props.startWidth,
-  boardH: props.startHeight,
   isPanning: false,
   lastPointer: { x: 0, y: 0 },
 });
@@ -89,21 +92,21 @@ function expandBoardToIncludeItems() {
   const neededRight = Math.ceil(bounds.maxX + padding);
   const neededBottom = Math.ceil(bounds.maxY + padding);
 
-  let newW = Math.max(state.boardW, neededRight);
-  let newH = Math.max(state.boardH, neededBottom);
+  let newW = Math.max(boardW.value, neededRight);
+  let newH = Math.max(boardH.value, neededBottom);
   // If items went negative (left/top < 0) we need to shift them right/down by increasing pan or expanding and keeping origin.
   // Simpler approach: if minX < padding negative area, expand board and shift pan so items remain visible.
   if (neededLeft < 0) {
     // how much we need to expand left
-    const growLeft = Math.min(Math.abs(neededLeft), props.maxBoardSize - state.boardW);
-    newW = Math.min(props.maxBoardSize, state.boardW + growLeft);
+    const growLeft = Math.min(Math.abs(neededLeft), props.maxBoardSize - boardW.value);
+    newW = Math.min(props.maxBoardSize, boardW.value + growLeft);
     // shift pan so content appears moved right by growLeft
     state.pan.x -= growLeft * state.scale;
     growthPan.x -= growLeft * state.scale;
   }
   if (neededTop < 0) {
-    const growTop = Math.min(Math.abs(neededTop), props.maxBoardSize - state.boardH);
-    newH = Math.min(props.maxBoardSize, state.boardH + growTop);
+    const growTop = Math.min(Math.abs(neededTop), props.maxBoardSize - boardH.value);
+    newH = Math.min(props.maxBoardSize, boardH.value + growTop);
     state.pan.y -= growTop * state.scale;
     growthPan.y -= growTop * state.scale;
   }
@@ -113,10 +116,8 @@ function expandBoardToIncludeItems() {
   newH = Math.min(newH, props.maxBoardSize);
 
   // apply new dimensions
-  state.boardW = newW;
-  state.boardH = newH;
-
-  // console.log(state);
+  boardW.value = newW;
+  boardH.value = newH;
 }
 
 function zoomAroundPoint(deltaScale, mouseClientX, mouseClientY) {
@@ -177,23 +178,6 @@ function onCardsChanged() {
   expandBoardToIncludeItems();
 }
 
-// Mapping functions that allow the toolbar to manage card state
-function addTextCard() {
-  cards.value?.addTextCard();
-}
-
-function addShapeCard() {
-  cards.value?.addShapeCard();
-}
-
-function startDraw() {
-  cards.value?.startDraw();
-}
-
-function startErase() {
-  cards.value?.startErase();
-}
-
 onMounted(async () => {
   await nextTick();
   expandBoardToIncludeItems();
@@ -216,8 +200,8 @@ onMounted(async () => {
       class="board-content"
       :class="{ 'debug-outline': debug }"
       :style="{
-        width: `${state.boardW}px`,
-        height: `${state.boardH}px`,
+        width: `${boardW}px`,
+        height: `${boardH}px`,
         transform: `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale}) `,
         transformOrigin: '0 0',
         '--grid-size': `${props.gridSize}px`,
@@ -232,12 +216,7 @@ onMounted(async () => {
       />
     </div>
   </div>
-  <Toolbar
-    @add-text-card="addTextCard"
-    @add-shape-card="addShapeCard"
-    @start-draw="startDraw"
-    @start-erase="startErase"
-  />
+  <Toolbar />
 </template>
 
 <style scoped>

@@ -1,8 +1,9 @@
 <script setup>
 import { reactive, onMounted, useTemplateRef } from "vue";
 import interact from "interactjs";
+import { useAppStore } from "@/stores/appStore";
 
-const emit = defineEmits(["deleteCard", "cardChanged"]);
+const emit = defineEmits(["cardChanged"]);
 
 // Get the card data from the cards parent
 const props = defineProps({
@@ -11,9 +12,8 @@ const props = defineProps({
   boardScale: { type: Number },
 });
 
-// Create a local copy of the data that can be modified
-const card = reactive(props.card);
-// const offsetPos = reactive({ ...props.boardPos });
+const store = useAppStore();
+const card = props.card;
 const offsetPos = reactive(props.boardPos);
 
 // Get a reference to the card element for the interaction mapping.
@@ -58,13 +58,14 @@ const cardContextMenuItems = [
       color: "error",
       icon: "i-lucide-trash",
       onSelect() {
-        emit("deleteCard", { id: card.id });
+        store.deleteCard(card.id);
       },
     },
   ],
 ];
 
 function getCardPos() {
+  console.log(offsetPos.x + ", " + offsetPos.y);
   return { x: card.x - offsetPos.x, y: card.y - offsetPos.y };
 }
 
