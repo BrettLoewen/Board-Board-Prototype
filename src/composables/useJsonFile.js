@@ -1,8 +1,4 @@
-import { ref } from "vue";
-
 export function useJsonFile() {
-  const importedData = ref(null);
-
   /** Export any JS object as a JSON file */
   function exportJson(data, filename = "data.json") {
     try {
@@ -22,23 +18,22 @@ export function useJsonFile() {
   }
 
   /** Import JSON file and update `importedData` */
-  function importJson(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function importJson(event) {
+    try {
+      const file = event.target.files[0];
+      if (!file) return null;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        importedData.value = JSON.parse(e.target.result);
-      } catch (err) {
-        console.error("Invalid JSON file:", err);
-      }
-    };
-    reader.readAsText(file);
+      const text = await file.text();
+      const json = JSON.parse(text);
+
+      return json; // return the actual JSON immediately
+    } catch (err) {
+      console.error("Failed to import JSON:", err);
+      return null;
+    }
   }
 
   return {
-    importedData,
     exportJson,
     importJson,
   };

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, useTemplateRef } from "vue";
+import { reactive, onMounted, useTemplateRef, toRefs } from "vue";
 import interact from "interactjs";
 import { useAppStore } from "@/stores/appStore";
 
@@ -13,7 +13,7 @@ const props = defineProps({
 });
 
 const store = useAppStore();
-const card = props.card;
+const { card } = toRefs(props);
 const offsetPos = reactive(props.boardPos);
 
 // Get a reference to the card element for the interaction mapping.
@@ -28,7 +28,6 @@ const cardContextMenuItems = [
     color: "error",
     icon: "i-lucide-trash",
     onSelect() {
-      // emit("deleteCard", { id: card.id });
       store.deleteCard(card.id);
     },
   },
@@ -69,8 +68,8 @@ onMounted(() => {
             return;
           }
 
-          card.x += event.dx / props.boardScale;
-          card.y += event.dy / props.boardScale;
+          card.value.x += event.dx / props.boardScale;
+          card.value.y += event.dy / props.boardScale;
 
           emit("cardChanged");
         },
@@ -87,10 +86,10 @@ onMounted(() => {
             return;
           }
 
-          card.width = event.rect.width / props.boardScale;
-          card.height = event.rect.height / props.boardScale;
-          card.x += event.deltaRect.left / props.boardScale;
-          card.y += event.deltaRect.top / props.boardScale;
+          card.value.width = event.rect.width / props.boardScale;
+          card.value.height = event.rect.height / props.boardScale;
+          card.value.x += event.deltaRect.left / props.boardScale;
+          card.value.y += event.deltaRect.top / props.boardScale;
 
           emit("cardChanged");
         },

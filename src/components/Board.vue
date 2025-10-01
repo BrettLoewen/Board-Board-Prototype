@@ -19,8 +19,6 @@ const props = defineProps({
 
 const store = useAppStore();
 const { boardW, boardH } = storeToRefs(store);
-store.boardW = props.startWidth;
-store.boardH = props.startHeight;
 
 const viewport = useTemplateRef("viewport");
 const content = useTemplateRef("content");
@@ -178,6 +176,11 @@ function onCardsChanged() {
   expandBoardToIncludeItems();
 }
 
+async function onImportedData() {
+  await nextTick();
+  expandBoardToIncludeItems();
+}
+
 onMounted(async () => {
   await nextTick();
   expandBoardToIncludeItems();
@@ -216,7 +219,7 @@ onMounted(async () => {
       />
     </div>
   </div>
-  <Toolbar />
+  <Toolbar @imported-data="onImportedData" />
 </template>
 
 <style scoped>

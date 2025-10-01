@@ -65,7 +65,6 @@ const cardContextMenuItems = [
 ];
 
 function getCardPos() {
-  console.log(offsetPos.x + ", " + offsetPos.y);
   return { x: card.x - offsetPos.x, y: card.y - offsetPos.y };
 }
 

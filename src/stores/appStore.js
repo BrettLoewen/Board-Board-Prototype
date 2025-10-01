@@ -2,11 +2,8 @@ import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", {
   state: () => ({
-    cards: [
-      { id: 1, type: "text", x: 400, y: 300, width: 150, height: 150 },
-      { id: 2, type: "text", x: 600, y: 400, width: 150, height: 150 },
-    ],
-    nextCardId: 3,
+    cards: [],
+    nextCardId: 0,
     drawState: "none", // "none" | "draw" | "erase"
     boardW: 1920,
     boardH: 919,
@@ -44,9 +41,18 @@ export const useAppStore = defineStore("app", {
     },
     importData(data) {
       Object.assign(this.$state, data);
+
+      // If you only wanted to import specific values
+      // this.$patch((state) => {
+      //   if (data.cards) state.cards = [...data.cards];
+      //   if (data.nextCardId) state.nextCardId = data.nextCardId;
+      // });
     },
     exportData() {
-      return this.$state;
+      return {
+        cards: this.cards,
+        nextCardId: this.nextCardId,
+      };
     },
   },
 });
