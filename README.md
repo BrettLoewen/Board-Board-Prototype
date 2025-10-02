@@ -13,7 +13,7 @@ You can use the prototype by going to its GitHub Pages deployment [here](https:/
 1. Clone the project to your device.
 2. Install Node 22 or later.
 3. Navigate into the project's directory.
-4. Install npm for the project:
+4. Install the project's packages using npm:
 
 ```
 npm install
