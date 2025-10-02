@@ -1,35 +1,39 @@
 # Board Board Prototype
 
-This template should help get you started developing with Vue 3 in Vite.
+A prototype app that provides a digital whiteboard where users can create and manage notes, shapes, and drawings. Users can export their whiteboards to a file and import them at a later time to save their work.
 
-## Recommended IDE Setup
+This app was built using Vue 3.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Live Site
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+You can use the prototype by going to its GitHub Pages deployment [here](https://brettloewen.github.io/Board-Board-Prototype/).
 
 ## Project Setup
 
-```sh
+1. Clone the project to your device.
+2. Install Node 22 or later.
+3. Navigate into the project's directory.
+4. Install npm for the project:
+
+```
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+5. Verify successful setup by running the project locally:
 
-```sh
+```
 npm run dev
 ```
 
-### Compile and Minify for Production
+## Resources
 
-```sh
-npm run build
-```
+For further reading on the resources used in this project:
 
-### Lint with [ESLint](https://eslint.org/)
+- [Vue.js](https://vuejs.org/)
+- [Nuxt UI](https://ui.nuxt.com/)
+- [Pinia](https://pinia.vuejs.org/)
+- [interact.js](https://interactjs.io/)
 
-```sh
-npm run lint
-```
+## AI Disclaimer
+
+This project was made with assistance from ChatGPT to make prototyping more efficient.
